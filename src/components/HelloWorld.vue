@@ -1,58 +1,92 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <p>每5秒自动刷新一次</p>
+    <h1>实时价格</h1>
+    <div class="row-container">
+      <div class="row-item" v-for="(item, index) in priceList" :key="'price'+index">
+        {{item.quote_token.symbol.name}} : {{item.last_price}}
+      </div>
+    </div>
+
+    <h1>日盈利（WAX）</h1>
+    <div class="row-container">
+      <div class="row-item" v-for="(item, index) in objectProfit" :key="index">
+        {{item.name}} : {{item.dailyProfit}}
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
+// import { io } from 'socket.io-client'
+// import axios from './axios';
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data() {
+    return {
+      priceList: [],
+      priceTargetId: [104, 105, 106],
+      objectList: [
+        {name: '电锯', goldCost: 3600, woodCost: 21600, goldRewardRate: 0, woodRewardRate: 54, fleshRewardRate: 0, chargeTime: 60, energyConsumed: 60, durabilityConsumed: 45, profit: {}},
+        {name: '船', goldCost: 3200, woodCost: 19200, goldRewardRate: 0, woodRewardRate: 0, fleshRewardRate: 80, chargeTime: 60, energyConsumed: 0, durabilityConsumed: 32, profit: {}},
+        {name: '矿车', goldCost: 4000, woodCost: 24000, goldRewardRate: 100, woodRewardRate: 0, fleshRewardRate: 0, chargeTime: 120, energyConsumed: 133, durabilityConsumed: 5, profit: {}}
+      ],
+      objectProfit: []
+    }
+  },
+  created() {
+    this.start()
+  },
+  methods: {
+    start() {
+      setInterval(this.getThePrice, 5000);
+      // this.getThePrice()
+    },
+    getThePrice() {
+      this.$request.getMarkets(data => {
+        this.priceList = data.data.filter(item => this.priceTargetId.indexOf(item.id) > -1)
+        this.calculateProfit()
+      })
+    },
+    calculateProfit() {
+      this.objectProfit = []
+      this.objectProfit = this.objectList.map(item => {
+        const woodPrice = this.priceList[0].last_price
+        const freshPrice = this.priceList[1].last_price
+        const goldPrice = this.priceList[2].last_price
+        console.log(`${woodPrice} - ${freshPrice} - ${goldPrice}`)
+        let periodProfit = item.woodRewardRate*woodPrice
+            + item.fleshRewardRate*freshPrice
+            + item.goldRewardRate*goldPrice
+            - (item.energyConsumed*freshPrice/5 + item.durabilityConsumed*goldPrice/5)
+        let dailyProfit = (periodProfit/(item.chargeTime/60))*24
+        return {
+          name: item.name,
+          dailyProfit: dailyProfit.toFixed(3)
+        }
+      })
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<style  scoped>
+.hello {
+
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.row-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+.row-item {
+  width: 150px;
+  display: flex;
 }
 </style>
