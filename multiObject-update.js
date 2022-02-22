@@ -42,6 +42,10 @@ function sleep (time) {
         console.log('update page...')
         await refreshPage();
     }, 1000* 60);
+    setInterval(async function() {
+        console.log('refresh page...')
+        location.reload();
+    }, 1000* 60* 10);
 
     async function refreshPage() {
         console.log('refreshPage...')
