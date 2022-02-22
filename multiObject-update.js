@@ -24,20 +24,20 @@ function sleep (time) {
     setInterval(async function () {
         console.log('finding...')
         login();
-        await sleep(3000);
+        await sleep(1000);
         closeFullDialog();
-        await sleep(3000);
+        await sleep(1000);
         await testCountDown();
-        await sleep(3000);
+        await sleep(1000);
         await testEnergy();
         // await sleep(3000);
         // testRepair();
         // await sleep(3000);
         // testHomePage();
-        await sleep(3000);
+        await sleep(1000);
         testCup();
-        await sleep(3000);
-    }, 5000);
+        await sleep(1000);
+    }, 1000* 20);
     setInterval(async function() {
         console.log('update page...')
         await refreshPage();
@@ -107,12 +107,13 @@ function sleep (time) {
                     if (els3.length == 3) {
                         for (let i = 0;i < 50;i ++) {
                             els3[2].click();
-                            setTimeout(function (){}, 100)
+                            await sleep(100)
                         }
                     }
                     let els4 = document.getElementsByClassName('plain-button long ')
                     if (els4.length == 1) {
                         els4[0].click();
+                        await sleep(500)
                     }
 
                     // }, 1000)
