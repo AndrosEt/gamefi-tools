@@ -30,8 +30,8 @@ function sleep (time) {
         await testCountDown();
         await sleep(3000);
         await testEnergy();
-        await sleep(3000);
-        testRepair();
+        // await sleep(3000);
+        // testRepair();
         // await sleep(3000);
         // testHomePage();
         await sleep(3000);
@@ -155,6 +155,11 @@ function sleep (time) {
                 // check every tool
                 tools[i].click();
                 await sleep(2000)
+                let reloadList = document.getElementsByClassName('plain-button semi-short ');
+                if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
+                    reloadList[1].click();
+                    await sleep(5000)
+                }
                 let els = document.getElementsByClassName("card-container--time");
                 if (els.length > 0 && els[0].textContent == '00:00:00') {
                     // mine now
