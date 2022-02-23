@@ -42,10 +42,6 @@ function sleep (time) {
         console.log('update page...')
         await refreshPage();
     }, 1000* 60);
-    setInterval(async function() {
-        console.log('refresh page...')
-        location.reload();
-    }, 1000* 60* 10);
 
     async function refreshPage() {
         console.log('refreshPage...')
@@ -109,6 +105,7 @@ function sleep (time) {
                             els3[2].click();
                             await sleep(100)
                         }
+                        await sleep(1000)
                     }
                     let els4 = document.getElementsByClassName('plain-button long ')
                     if (els4.length == 1) {
@@ -174,6 +171,7 @@ function sleep (time) {
                         for (let i = 0; i < btnList.length; i++) {
                             if (btnList[i].textContent == "Mine") {
                                 btnList[i].click();
+                                await sleep(5000)
                             }
                         }
                     }
