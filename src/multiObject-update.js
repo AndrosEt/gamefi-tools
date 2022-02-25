@@ -21,68 +21,80 @@ function sleep (time) {
 }
 ;(async function() {
     'use strict'
-    setInterval(async function () {
-        console.log('finding...')
-        login();
+    // setInterval(async function () {
+    //     console.log('finding...')
+    //     login();
+    //     await sleep(1000);
+    //     closeFullDialog();
+    //     await sleep(1000);
+    //     await testCountDown();
+    //     await sleep(1000);
+    //     await testEnergy();
+    //     await sleep(1000);
+    //     testCup();
+    //     await sleep(1000);
+    // }, 1000* 20);
+    setTimeout(async function () {
+        await start()
+    }, 1000* 5)
+    // setInterval(async function() {
+    //     console.log('update page...')
+    //     await refreshPage();
+    // }, 1000* 60);
+
+    async function start() {
+        await refreshPage()
+        await sleep(1000)
+        await login();
         await sleep(1000);
-        closeFullDialog();
+        await closeFullDialog();
         await sleep(1000);
         await testCountDown();
         await sleep(1000);
         await testEnergy();
-        // await sleep(3000);
-        // testRepair();
-        // await sleep(3000);
-        // testHomePage();
         await sleep(1000);
-        testCup();
+        await testCup();
         await sleep(1000);
-    }, 1000* 20);
-    setInterval(async function() {
-        console.log('update page...')
-        await refreshPage();
-    }, 1000* 60);
+    }
 
     async function refreshPage() {
         console.log('refreshPage...')
         let els = document.getElementsByClassName('navbar-group--icon')
         if (els.length == 7) {
             els[1].click();
-            // setTimeout(function () {
-            await sleep(3000)
+            await sleep(2000)
             els[0].click();
-            // }, 2000)
+            await sleep(3000)
         }
     }
 
-    function testCup() {
+    async function testCup() {
         console.log('testCup...')
         let els = document.getElementsByClassName('modal-stake-header')
         if (els.length == 1 && els[0].textContent == 'You dont have enough CPU to create transaction. Please stake WAX on CPU to continue.') {
             let els = document.getElementsByClassName('image-button close-modal')
             if (els.length == 1) {
                 els[0].click();
+                await sleep(1000)
             }
         }
-
+        await start()
     }
 
     function testHomePage() {
         console.log('testHomePage...')
-        // let els = document.getElementsByClassName('navbar-group active')
-        // if (els.length == 1 && els[0].textContent != 'Home') {
         let els = document.getElementsByClassName('navbar-group--icon')
         if (els.length == 7 && els[0].className.indexOf('active') == -1) {
             els[0].click();
         }
-        // }
     }
 
-    function testRepair() {
+    async function testRepair() {
         console.log('testRepair...')
         let els = document.getElementsByClassName('plain-button semi-short ');
         if (els.length == 2 && els[1].textContent == 'Repair' && els[1].className.indexOf('disabled') == -1) {
             els[1].click();
+            await sleep(1000* 8)
         }
     }
 
@@ -98,7 +110,6 @@ function sleep (time) {
                 if (els2.length) {
                     els2[0].click()
                     await sleep(2000)
-                    // setTimeout(function () {
                     let els3 = document.getElementsByClassName('image-button')
                     if (els3.length == 3) {
                         for (let i = 0;i < 50;i ++) {
@@ -112,40 +123,32 @@ function sleep (time) {
                         els4[0].click();
                         await sleep(500)
                     }
-
-                    // }, 1000)
                 }
             }
         }
     }
 
-    function login() {
+    async function login() {
         console.log('login...')
-        let retry_count = 0;
-        let RETRY_LIMIT = 100;
-        let els = document.getElementsByClassName("login-button");
-        if (els.length > 0 && els[0].textContent == 'Login') {
-            els[0].click();
-            let material_checkExist = setInterval(function () {
-                let els = document.getElementsByClassName("login-modal-button");
-                if (els.length) {
-                    els[0].click();
-                    clearInterval(material_checkExist);
-                }
-                retry_count = retry_count + 1;
-                if (retry_count > RETRY_LIMIT) {
-                    clearInterval(material_checkExist);
-                }
-            }, 330);
+        let els1 = document.getElementsByClassName("login-button");
+        if (els1.length > 0 && els1[0].textContent == 'Login') {
+            els1[0].click();
+            await sleep(2000)
+            let els2 = document.getElementsByClassName("login-modal-button");
+            if (els2.length) {
+                els2[0].click();
+                await sleep(1000* 10)
+            }
         }
 
     }
 
-    function closeFullDialog() {
+    async function closeFullDialog() {
         console.log('closeFullDialog...')
         let els = document.getElementsByClassName("plain-button short undefined");
         if (els.length > 0 && els[0].textContent == 'OK') {
             els[0].click();
+            sleep(1000)
         }
     }
     async function testCountDown() {
@@ -176,6 +179,8 @@ function sleep (time) {
                         }
                     }
                 }
+                await sleep(1000)
+                await testRepair()
             }
         }
     }
