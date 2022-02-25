@@ -57,6 +57,10 @@ function sleep (time) {
         await sleep(1000);
     }
 
+    async function test () {
+        //estimated CPU time (0 us) is not less than the maximum billable CPU time for the transaction (0 us)
+    }
+
     async function refreshPage() {
         console.log('refreshPage...')
         let els = document.getElementsByClassName('navbar-group--icon')
@@ -112,7 +116,7 @@ function sleep (time) {
                     await sleep(2000)
                     let els3 = document.getElementsByClassName('image-button')
                     if (els3.length == 3) {
-                        for (let i = 0;i < 50;i ++) {
+                        for (let i = 0;i < 100;i ++) {
                             els3[2].click();
                             await sleep(100)
                         }
@@ -121,7 +125,7 @@ function sleep (time) {
                     let els4 = document.getElementsByClassName('plain-button long ')
                     if (els4.length == 1) {
                         els4[0].click();
-                        await sleep(500)
+                        await sleep(5000)
                     }
                 }
             }
