@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <p>每5秒自动刷新一次</p>
+    <p style="margin: 0">每5秒自动刷新一次</p>
     <h1>实时价格</h1>
     <div class="row-container">
       <div class="row-item" v-for="(item, index) in priceList" :key="'price'+index">
@@ -58,6 +58,7 @@ export default {
   },
   methods: {
     start() {
+      this.getThePrice()
       setInterval(this.getThePrice, 5000);
       // this.getThePrice()
     },
