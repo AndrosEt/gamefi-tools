@@ -16,36 +16,39 @@
 // @compatible   chrome >=55
 // @license      MIT
 // ==/UserScript==
-function sleep (time) {
+function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
-;(async function() {
+const Storage = {};
+Storage.set = function(name, val) {
+    localStorage.setItem(name, val);
+}
+Storage.get = function(name) {
+    return localStorage.getItem(name);
+}
+;(async function () {
     'use strict'
-    // setInterval(async function () {
-    //     console.log('finding...')
-    //     login();
-    //     await sleep(1000);
-    //     closeFullDialog();
-    //     await sleep(1000);
-    //     await testCountDown();
-    //     await sleep(1000);
-    //     await testEnergy();
-    //     await sleep(1000);
-    //     testCup();
-    //     await sleep(1000);
-    // }, 1000* 20);
+
+    let notWorksRpcList = Storage.get("notWorksRpcList") || []
+    let currentRpc = Number(Storage.get("currentRpc")) || 1
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        console.log('DOM fully loaded and parsed');
+    });
+
     setTimeout(async function () {
         await start()
-    }, 1000* 5)
-    // setInterval(async function() {
-    //     console.log('update page...')
-    //     await refreshPage();
-    // }, 1000* 60);
+    }, 1000 * 5)
 
     async function start() {
-        await refreshPage()
         await sleep(1000)
         await login();
+        await sleep(1000)
+        await loop()
+    }
+
+    async function loop() {
+        await refreshPage()
         await sleep(1000);
         await closeFullDialog();
         await sleep(1000);
@@ -57,8 +60,15 @@ function sleep (time) {
         await sleep(1000);
     }
 
-    async function test () {
+    async function testRpc() {
         //estimated CPU time (0 us) is not less than the maximum billable CPU time for the transaction (0 us)
+        let cupIndex = document.body.innerText.indexOf("estimated CPU time (0 us)")
+        let todayIndex = document.body.innerText.indexOf("Today is a hard day!")
+        let showIndex = document.body.innerText.indexOf("Slow down!")
+        if (cupIndex != -1 || todayIndex != -1 || showIndex != -1) {
+            Storage.set("currentRpc", currentRpc+1)
+            window.location.reload();
+        }
     }
 
     async function refreshPage() {
@@ -82,7 +92,7 @@ function sleep (time) {
                 await sleep(1000)
             }
         }
-        await start()
+        await loop()
     }
 
     function testHomePage() {
@@ -98,7 +108,8 @@ function sleep (time) {
         let els = document.getElementsByClassName('plain-button semi-short ');
         if (els.length == 2 && els[1].textContent == 'Repair' && els[1].className.indexOf('disabled') == -1) {
             els[1].click();
-            await sleep(1000* 8)
+            await sleep(1000 * 8)
+            await testRpc()
         }
     }
 
@@ -116,7 +127,7 @@ function sleep (time) {
                     await sleep(2000)
                     let els3 = document.getElementsByClassName('image-button')
                     if (els3.length == 3) {
-                        for (let i = 0;i < 100;i ++) {
+                        for (let i = 0; i < 100; i++) {
                             els3[2].click();
                             await sleep(100)
                         }
@@ -126,6 +137,8 @@ function sleep (time) {
                     if (els4.length == 1) {
                         els4[0].click();
                         await sleep(5000)
+                        await testRpc()
+
                     }
                 }
             }
@@ -134,6 +147,30 @@ function sleep (time) {
 
     async function login() {
         console.log('login...')
+        let currentRpcUrl = ''
+        // get the rpc endpoint
+        let rpcElement = document.getElementById("RPC-Endpoint")
+        while (rpcElement == null || rpcElement == undefined) {
+            await sleep(3000)
+            rpcElement = document.getElementById("RPC-Endpoint").children
+        }
+        let rpcList = rpcElement.children
+        if (currentRpc >= rpcList.length - 1) {
+            currentRpc = 1
+        }
+        for(let i = currentRpc;i < rpcList.length;i ++) {
+            if (notWorksRpcList.length > 0 && notWorksRpcList.indexOf(rpcList[i].textContent) != -1) {
+                continue
+            }
+            rpcList[i].selected = true
+            Storage.set('currentRpc', i)
+            currentRpc = i
+            currentRpcUrl = rpcList[i].textContent
+            await sleep(1000)
+            break;
+        }
+
+
         let els1 = document.getElementsByClassName("login-button");
         if (els1.length > 0 && els1[0].textContent == 'Login') {
             els1[0].click();
@@ -141,7 +178,25 @@ function sleep (time) {
             let els2 = document.getElementsByClassName("login-modal-button");
             if (els2.length) {
                 els2[0].click();
-                await sleep(1000* 10)
+                // waiting for home page
+                while (true) {
+                    await sleep(1000 * 5)
+                    let tools = document.getElementsByClassName('carousel__img--item')
+                    if (tools.length == 0) {
+                        let undefinedList = document.getElementsByClassName("plain-button semi-long  undefined")
+                        if (undefinedList.length == 0) {
+                            continue
+                        } else {
+                            // switch the rpc
+                            notWorksRpcList.push(currentRpcUrl)
+                            Storage.set('notWorksRpcList', notWorksRpcList)
+                            window.location.reload();
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
             }
         }
 
@@ -155,6 +210,7 @@ function sleep (time) {
             sleep(1000)
         }
     }
+
     async function testCountDown() {
         console.log('testCountDown...')
 
@@ -168,6 +224,7 @@ function sleep (time) {
                 if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
                     reloadList[1].click();
                     await sleep(5000)
+                    await testRpc()
                 }
                 let els = document.getElementsByClassName("card-container--time");
                 if (els.length > 0 && els[0].textContent == '00:00:00') {
@@ -179,6 +236,8 @@ function sleep (time) {
                             if (btnList[i].textContent == "Mine") {
                                 btnList[i].click();
                                 await sleep(5000)
+                                await testRpc()
+
                             }
                         }
                     }
