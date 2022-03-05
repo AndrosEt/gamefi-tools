@@ -118,7 +118,7 @@ Storage.get = function(name) {
         let els1 = document.getElementsByClassName("resource-number");
         if (els1.length == 4) {
             let energy = els1[3].textContent.split(' /')[0];
-            if (Number(energy) < 400) {
+            if (Number(energy) < 500) {
                 // add more energy
                 let els2 = document.getElementsByClassName("resource-energy--plus");
 
@@ -147,28 +147,28 @@ Storage.get = function(name) {
 
     async function login() {
         console.log('login...')
-        let currentRpcUrl = ''
-        // get the rpc endpoint
-        let rpcElement = document.getElementById("RPC-Endpoint")
-        while (rpcElement == null || rpcElement == undefined) {
-            await sleep(3000)
-            rpcElement = document.getElementById("RPC-Endpoint").children
-        }
-        let rpcList = rpcElement.children
-        if (currentRpc >= rpcList.length - 1) {
-            currentRpc = 1
-        }
-        for(let i = currentRpc;i < rpcList.length;i ++) {
-            if (notWorksRpcList.length > 0 && notWorksRpcList.indexOf(rpcList[i].textContent) != -1) {
-                continue
-            }
-            rpcList[i].selected = true
-            Storage.set('currentRpc', i)
-            currentRpc = i
-            currentRpcUrl = rpcList[i].textContent
-            await sleep(1000)
-            break;
-        }
+        // let currentRpcUrl = ''
+        // // get the rpc endpoint
+        // let rpcElement = document.getElementById("RPC-Endpoint")
+        // while (rpcElement == null || rpcElement == undefined) {
+        //     await sleep(3000)
+        //     rpcElement = document.getElementById("RPC-Endpoint").children
+        // }
+        // let rpcList = rpcElement.children
+        // if (currentRpc >= rpcList.length - 1) {
+        //     currentRpc = 1
+        // }
+        // for(let i = currentRpc;i < rpcList.length;i ++) {
+        //     if (notWorksRpcList.length > 0 && notWorksRpcList.indexOf(rpcList[i].textContent) != -1) {
+        //         continue
+        //     }
+        //     rpcList[i].selected = true
+        //     Storage.set('currentRpc', i)
+        //     currentRpc = i
+        //     currentRpcUrl = rpcList[i].textContent
+        //     await sleep(1000)
+        //     break;
+        // }
 
 
         let els1 = document.getElementsByClassName("login-button");
@@ -186,11 +186,6 @@ Storage.get = function(name) {
                         let undefinedList = document.getElementsByClassName("plain-button semi-long  undefined")
                         if (undefinedList.length == 0) {
                             continue
-                        } else {
-                            // switch the rpc
-                            notWorksRpcList.push(currentRpcUrl)
-                            Storage.set('notWorksRpcList', notWorksRpcList)
-                            window.location.reload();
                         }
                     } else {
                         break;
