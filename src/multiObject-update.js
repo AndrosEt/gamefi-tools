@@ -19,11 +19,12 @@
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
+
 const Storage = {};
-Storage.set = function(name, val) {
+Storage.set = function (name, val) {
     localStorage.setItem(name, val);
 }
-Storage.get = function(name) {
+Storage.get = function (name) {
     return localStorage.getItem(name);
 }
 ;(async function () {
@@ -58,8 +59,6 @@ Storage.get = function(name) {
         await sleep(1000);
         await testRepair();
         await sleep(1000);
-        await testCup();
-        await sleep(1000);
     }
 
     async function testRpc() {
@@ -68,8 +67,10 @@ Storage.get = function(name) {
         let todayIndex = document.body.innerText.indexOf("Today is a hard day!")
         let showIndex = document.body.innerText.indexOf("Slow down!")
         if (cupIndex != -1 || todayIndex != -1 || showIndex != -1) {
-            Storage.set("currentRpc", currentRpc+1)
+            Storage.set("currentRpc", currentRpc + 1)
             window.location.reload();
+        } else {
+            await testCup()
         }
     }
 
@@ -88,13 +89,35 @@ Storage.get = function(name) {
         console.log('testCup...')
         let els = document.getElementsByClassName('modal-stake-header')
         if (els.length == 1 && els[0].textContent == 'You dont have enough CPU to create transaction. Please stake WAX on CPU to continue.') {
-            let els = document.getElementsByClassName('image-button close-modal')
-            if (els.length == 1) {
-                els[0].click();
-                await sleep(1000)
+            let rate = getCpuRate()
+            if (rate > 95) {
+                // wait until down to 95%
+                while (rate > 95) {
+                    await sleep(2000)
+                    rate = getCpuRate()
+                }
+                // test the energy
+                let els1 = document.getElementsByClassName("resource-number");
+                if (els1.length == 4) {
+                    let energy = els1[3].textContent.split(' /')[0];
+                    if (Number(energy) < 133) {
+                        // charge the energy first
+                        await testEnergy()
+                    }
+                }
+                // mine now
+                await testCountDown()
             }
         }
-        await loop()
+    }
+
+    function getCpuRate() {
+        let circular = document.getElementsByClassName('circular-progress')
+        if (circular.length == 3) {
+            return Number(circular[0].getElementsByTagName('strong')[0].innerText.replace('%', ''))
+        } else {
+            return 0
+        }
     }
 
     function testHomePage() {
@@ -111,7 +134,7 @@ Storage.get = function(name) {
         for (let i = 0; i < tools.length; i++) {
             // check every tool
             tools[i].click();
-            await sleep(2000)
+            await sleep(500)
             let reloadList = document.getElementsByClassName('plain-button semi-short ');
             if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
                 reloadList[1].click();
@@ -119,6 +142,7 @@ Storage.get = function(name) {
                 await testRpc()
             }
         }
+        await loop()
     }
 
     async function testEnergy() {
@@ -135,7 +159,7 @@ Storage.get = function(name) {
                     await sleep(2000)
                     let els3 = document.getElementsByClassName('image-button')
                     if (els3.length == 3) {
-                        for (let i = 0; i < 100; i++) {
+                        for (let i = 0; i < ((500 - Number(energy))/5 + 5); i++) {
                             els3[2].click();
                             await sleep(100)
                         }
@@ -144,9 +168,8 @@ Storage.get = function(name) {
                     let els4 = document.getElementsByClassName('plain-button long ')
                     if (els4.length == 1) {
                         els4[0].click();
-                        await sleep(5000)
+                        await sleep(4000)
                         await testRpc()
-
                     }
                 }
             }
@@ -218,20 +241,13 @@ Storage.get = function(name) {
         console.log('testCountDown...')
 
         let tools = document.getElementsByClassName('carousel__img--item')
-        let timers = document.getElementsByClassName('satellite__card-time')
-        if (tools.length > 0 && timers.length) {
-            // check the timer
-            let mineAbleTimerIndex = []
-            for (let i = 0;i < timers.length; i++) {
-                if (timers[i].innerText == '00:00:00') {
-                    mineAbleTimerIndex.push(i)
-                }
-            }
-
-            if (mineAbleTimerIndex.length > 0) {
-                for (let j = 0;j < mineAbleTimerIndex.length; j++) {
-                    tools[mineAbleTimerIndex[j]].click();
-                    await sleep(500)
+        if (tools.length > 0) {
+            for (let i = 0; i < tools.length; i++) {
+                // check every tool
+                tools[i].click();
+                await sleep(500)
+                let els = document.getElementsByClassName("card-container--time");
+                if (els.length > 0 && els[0].textContent == '00:00:00') {
                     // mine now
                     let btnList = document.getElementsByClassName("plain-button semi-short");
                     if (btnList.length > 0) {
@@ -239,44 +255,13 @@ Storage.get = function(name) {
                         for (let i = 0; i < btnList.length; i++) {
                             if (btnList[i].textContent == "Mine") {
                                 btnList[i].click();
-                                await sleep(1000)
+                                await sleep(3000)
                                 await testRpc()
                             }
                         }
                     }
                 }
             }
-
-
-
-            // for (let i = 0; i < tools.length; i++) {
-            //     // check every tool
-            //     tools[i].click();
-            //     await sleep(2000)
-            //     let reloadList = document.getElementsByClassName('plain-button semi-short ');
-            //     if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
-            //         reloadList[1].click();
-            //         await sleep(5000)
-            //         await testRpc()
-            //     }
-            //     let els = document.getElementsByClassName("card-container--time");
-            //     if (els.length > 0 && els[0].textContent == '00:00:00') {
-            //         // mine now
-            //         let btnList = document.getElementsByClassName("plain-button semi-short");
-            //         if (btnList.length > 0) {
-            //             // find the mine btn
-            //             for (let i = 0; i < btnList.length; i++) {
-            //                 if (btnList[i].textContent == "Mine") {
-            //                     btnList[i].click();
-            //                     await sleep(5000)
-            //                     await testRpc()
-            //                 }
-            //             }
-            //         }
-            //     }
-            //     await sleep(1000)
-            //     await testRepair()
-            // }
         }
     }
 })()
