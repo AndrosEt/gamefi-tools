@@ -56,6 +56,8 @@ Storage.get = function(name) {
         await sleep(1000);
         await testEnergy();
         await sleep(1000);
+        await testRepair();
+        await sleep(1000);
         await testCup();
         await sleep(1000);
     }
@@ -105,11 +107,17 @@ Storage.get = function(name) {
 
     async function testRepair() {
         console.log('testRepair...')
-        let els = document.getElementsByClassName('plain-button semi-short ');
-        if (els.length == 2 && els[1].textContent == 'Repair' && els[1].className.indexOf('disabled') == -1) {
-            els[1].click();
-            await sleep(1000 * 8)
-            await testRpc()
+        let tools = document.getElementsByClassName('carousel__img--item')
+        for (let i = 0; i < tools.length; i++) {
+            // check every tool
+            tools[i].click();
+            await sleep(2000)
+            let reloadList = document.getElementsByClassName('plain-button semi-short ');
+            if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
+                reloadList[1].click();
+                await sleep(5000)
+                await testRpc()
+            }
         }
     }
 
@@ -210,19 +218,20 @@ Storage.get = function(name) {
         console.log('testCountDown...')
 
         let tools = document.getElementsByClassName('carousel__img--item')
-        if (tools.length > 0) {
-            for (let i = 0; i < tools.length; i++) {
-                // check every tool
-                tools[i].click();
-                await sleep(2000)
-                let reloadList = document.getElementsByClassName('plain-button semi-short ');
-                if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
-                    reloadList[1].click();
-                    await sleep(5000)
-                    await testRpc()
+        let timers = document.getElementsByClassName('satellite__card-time')
+        if (tools.length > 0 && timers.length) {
+            // check the timer
+            let mineAbleTimerIndex = []
+            for (let i = 0;i < timers.length; i++) {
+                if (timers[i].innerText == '00:00:00') {
+                    mineAbleTimerIndex.push(i)
                 }
-                let els = document.getElementsByClassName("card-container--time");
-                if (els.length > 0 && els[0].textContent == '00:00:00') {
+            }
+
+            if (mineAbleTimerIndex.length > 0) {
+                for (let j = 0;j < mineAbleTimerIndex.length; j++) {
+                    tools[mineAbleTimerIndex[j]].click();
+                    await sleep(500)
                     // mine now
                     let btnList = document.getElementsByClassName("plain-button semi-short");
                     if (btnList.length > 0) {
@@ -230,16 +239,44 @@ Storage.get = function(name) {
                         for (let i = 0; i < btnList.length; i++) {
                             if (btnList[i].textContent == "Mine") {
                                 btnList[i].click();
-                                await sleep(5000)
+                                await sleep(1000)
                                 await testRpc()
-
                             }
                         }
                     }
                 }
-                await sleep(1000)
-                await testRepair()
             }
+
+
+
+            // for (let i = 0; i < tools.length; i++) {
+            //     // check every tool
+            //     tools[i].click();
+            //     await sleep(2000)
+            //     let reloadList = document.getElementsByClassName('plain-button semi-short ');
+            //     if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
+            //         reloadList[1].click();
+            //         await sleep(5000)
+            //         await testRpc()
+            //     }
+            //     let els = document.getElementsByClassName("card-container--time");
+            //     if (els.length > 0 && els[0].textContent == '00:00:00') {
+            //         // mine now
+            //         let btnList = document.getElementsByClassName("plain-button semi-short");
+            //         if (btnList.length > 0) {
+            //             // find the mine btn
+            //             for (let i = 0; i < btnList.length; i++) {
+            //                 if (btnList[i].textContent == "Mine") {
+            //                     btnList[i].click();
+            //                     await sleep(5000)
+            //                     await testRpc()
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     await sleep(1000)
+            //     await testRepair()
+            // }
         }
     }
 })()
