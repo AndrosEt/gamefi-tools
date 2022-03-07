@@ -53,12 +53,36 @@ Storage.get = function (name) {
         await sleep(1000);
         await closeFullDialog();
         await sleep(1000);
-        await testCountDown();
-        await sleep(1000);
-        await testEnergy();
-        await sleep(1000);
-        await testRepair();
-        await sleep(1000);
+
+        // check the energy
+        let els = document.getElementsByClassName("resource-number");
+        if (els.length == 4) {
+            let energy = els[3].textContent.split(' /')[0];
+            if (Number(energy) < 133) {
+                // charge energy first
+                await testEnergy();
+                await sleep(1000);
+            } else {
+                // check the mine
+                let timers = document.getElementsByClassName('satellite__card-time')
+                let mining = false
+                for (let i = 0;i < timers.length;i++) {
+                    if (timers[i].innerText == '00:00:00') {
+                        mining = true
+                    }
+                }
+                if (mining) {
+                    await testCountDown();
+                    await sleep(1000);
+                } else {
+                    await testEnergy();
+                    await sleep(1000);
+                    await testRepair();
+                    await sleep(1000);
+                }
+            }
+        }
+
     }
 
     async function testRpc() {
@@ -149,8 +173,8 @@ Storage.get = function (name) {
         console.log('testEnergy...')
         let els1 = document.getElementsByClassName("resource-number");
         if (els1.length == 4) {
-            let energy = els1[3].textContent.split(' /')[0];
-            if (Number(energy) < 500) {
+            let energyMap = els1[3].textContent.split(' /');
+            if (Number(energyMap[0]) < Number(energyMap[1])) {
                 // add more energy
                 let els2 = document.getElementsByClassName("resource-energy--plus");
 
@@ -159,7 +183,7 @@ Storage.get = function (name) {
                     await sleep(2000)
                     let els3 = document.getElementsByClassName('image-button')
                     if (els3.length == 3) {
-                        for (let i = 0; i < ((500 - Number(energy))/5 + 5); i++) {
+                        for (let i = 0; i < ((Number(energyMap[1]) - Number(energyMap[0]))/5 + 5); i++) {
                             els3[2].click();
                             await sleep(100)
                         }
@@ -248,18 +272,35 @@ Storage.get = function (name) {
                 await sleep(500)
                 let els = document.getElementsByClassName("card-container--time");
                 if (els.length > 0 && els[0].textContent == '00:00:00') {
-                    // mine now
-                    let btnList = document.getElementsByClassName("plain-button semi-short");
-                    if (btnList.length > 0) {
-                        // find the mine btn
-                        for (let i = 0; i < btnList.length; i++) {
-                            if (btnList[i].textContent == "Mine") {
-                                btnList[i].click();
-                                await sleep(3000)
-                                await testRpc()
+                    let type = document.getElementsByClassName('info-title-name')
+                    if (type && type.length == 1) {
+                        if (type[0].innerText.indexOf('Member') != -1) {
+                            // Member
+                            let btnList = document.getElementsByClassName("plain-button semi-short");
+                            if (btnList.length > 0) {
+                                for (let i = 0;i < btnList.length;i++) {
+                                    btnList[0].click();
+                                    await sleep(3000)
+                                    await testRpc()
+                                }
+                            }
+
+                        } else {
+                            // mine now
+                            let btnList = document.getElementsByClassName("plain-button semi-short");
+                            if (btnList.length > 0) {
+                                // find the mine btn
+                                for (let i = 0; i < btnList.length; i++) {
+                                    if (btnList[i].textContent == "Mine") {
+                                        btnList[i].click();
+                                        await sleep(3000)
+                                        await testRpc()
+                                    }
+                                }
                             }
                         }
                     }
+
                 }
             }
         }
