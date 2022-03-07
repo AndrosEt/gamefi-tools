@@ -118,10 +118,15 @@ Storage.get = function (name) {
             await sleep(7000)
             let rate = getCpuRate()
             if (rate > 95) {
+                let times = 0
                 // wait until down to 95%
                 while (rate > 95) {
                     await sleep(2000)
                     rate = getCpuRate()
+                    times ++
+                    if (times > 30) {
+                        window.location.reload();
+                    }
                 }
                 // test the energy
                 let els1 = document.getElementsByClassName("resource-number");
