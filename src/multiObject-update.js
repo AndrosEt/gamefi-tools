@@ -124,7 +124,7 @@ Storage.get = function (name) {
                     await sleep(2000)
                     rate = getCpuRate()
                     times ++
-                    if (times > 30) {
+                    if (times > 90) {
                         window.location.reload();
                     }
                 }
@@ -167,6 +167,12 @@ Storage.get = function (name) {
             // check every tool
             tools[i].click();
             await sleep(500)
+            let claim = document.getElementsByClassName('plain-button semi-short true')
+            if (claim.length == 1) {
+                claim[0].click()
+                await sleep(5000)
+                await testRpc()
+            }
             let reloadList = document.getElementsByClassName('plain-button semi-short ');
             if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
                 reloadList[1].click();
@@ -283,38 +289,50 @@ Storage.get = function (name) {
                 // check every tool
                 tools[i].click();
                 await sleep(500)
-                let els = document.getElementsByClassName("plain-button semi-short");
-                if (els.length > 0) {
-                    let type = document.getElementsByClassName('info-title-name')
-                    if (type && type.length == 1) {
-                        if (type[0].innerText.indexOf('Member') != -1) {
-                            // Member
-                            let btnList = document.getElementsByClassName("plain-button semi-short");
-                            if (btnList.length > 0) {
-                                for (let i = 0;i < btnList.length;i++) {
-                                    btnList[0].click();
-                                    await sleep(3000)
-                                    await testRpc()
-                                }
-                            }
-
-                        } else {
-                            // mine now
-                            let btnList = document.getElementsByClassName("plain-button semi-short");
-                            if (btnList.length > 0) {
-                                // find the mine btn
-                                for (let i = 0; i < btnList.length; i++) {
-                                    if (btnList[i].textContent == "Mine") {
-                                        btnList[i].click();
-                                        await sleep(3000)
-                                        await testRpc()
-                                    }
-                                }
-                            }
+                // mine now
+                let btnList = document.getElementsByClassName("plain-button semi-short");
+                if (btnList.length > 0) {
+                    // find the mine btn
+                    for (let i = 0; i < btnList.length; i++) {
+                        if (btnList[i].textContent == "Mine") {
+                            btnList[i].click();
+                            await sleep(3000)
+                            await testRpc()
                         }
                     }
-
                 }
+                // let els = document.getElementsByClassName("plain-button semi-short");
+                // if (els.length > 0) {
+                //     let type = document.getElementsByClassName('info-title-name')
+                //     if (type && type.length == 1) {
+                //         if (type[0].innerText.indexOf('Member') != -1) {
+                //             // Member
+                //             let btnList = document.getElementsByClassName("plain-button semi-short");
+                //             if (btnList.length > 0) {
+                //                 for (let i = 0;i < btnList.length;i++) {
+                //                     btnList[0].click();
+                //                     await sleep(3000)
+                //                     await testRpc()
+                //                 }
+                //             }
+                //
+                //         } else {
+                //             // mine now
+                //             let btnList = document.getElementsByClassName("plain-button semi-short");
+                //             if (btnList.length > 0) {
+                //                 // find the mine btn
+                //                 for (let i = 0; i < btnList.length; i++) {
+                //                     if (btnList[i].textContent == "Mine") {
+                //                         btnList[i].click();
+                //                         await sleep(3000)
+                //                         await testRpc()
+                //                     }
+                //                 }
+                //             }
+                //         }
+                //     }
+                //
+                // }
             }
         }
     }
