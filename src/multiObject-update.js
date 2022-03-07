@@ -115,6 +115,7 @@ Storage.get = function (name) {
         console.log('testCup...')
         let els = document.getElementsByClassName('modal-stake-header')
         if (els.length == 1 && els[0].textContent == 'You dont have enough CPU to create transaction. Please stake WAX on CPU to continue.') {
+            await sleep(7000)
             let rate = getCpuRate()
             if (rate > 95) {
                 // wait until down to 95%
@@ -277,8 +278,8 @@ Storage.get = function (name) {
                 // check every tool
                 tools[i].click();
                 await sleep(500)
-                let els = document.getElementsByClassName("card-container--time");
-                if (els.length > 0 && els[0].textContent == '00:00:00') {
+                let els = document.getElementsByClassName("plain-button semi-short");
+                if (els.length > 0) {
                     let type = document.getElementsByClassName('info-title-name')
                     if (type && type.length == 1) {
                         if (type[0].innerText.indexOf('Member') != -1) {
