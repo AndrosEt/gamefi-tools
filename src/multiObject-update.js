@@ -82,6 +82,8 @@ Storage.get = function (name) {
                 }
             }
         }
+        await sleep(1000)
+        await loop()
 
     }
 
@@ -184,8 +186,13 @@ Storage.get = function (name) {
                     let els3 = document.getElementsByClassName('image-button')
                     if (els3.length == 3) {
                         for (let i = 0; i < ((Number(energyMap[1]) - Number(energyMap[0]))/5 + 5); i++) {
-                            els3[2].click();
-                            await sleep(100)
+                            if (els3[2] == undefined) {
+                                els3 = document.getElementsByClassName('image-button')
+                            }
+                            if (els3) {
+                                els3[2].click();
+                                await sleep(100)
+                            }
                         }
                         await sleep(1000)
                     }
