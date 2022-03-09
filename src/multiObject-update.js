@@ -371,6 +371,12 @@ let toolsStatus = []
                         }
                     }
                 }
+                let reloadList = document.getElementsByClassName('plain-button semi-short ');
+                if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
+                    reloadList[1].click();
+                    await sleep(5000)
+                    await testRpc()
+                }
                 // let els = document.getElementsByClassName("plain-button semi-short");
                 // if (els.length > 0) {
                 //     let type = document.getElementsByClassName('info-title-name')
