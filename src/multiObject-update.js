@@ -304,14 +304,18 @@ let toolsStatus = []
                 // waiting for home page
                 while (true) {
                     await sleep(1000 * 5)
-                    let tools = document.getElementsByClassName('carousel__img--item')
-                    if (tools.length == 0) {
-                        let undefinedList = document.getElementsByClassName("plain-button semi-long  undefined")
-                        if (undefinedList.length == 0) {
-                            continue
-                        }
+                    let navbarList = document.getElementsByClassName('navbar-group--icon')
+                    if (navbarList.length == 0) {
+                        continue
                     } else {
-                        break;
+                        let cards = document.getElementsByClassName('satellite__card-time')
+                        if (cards.length == 0) {
+                            // refresh
+                            window.location.reload();
+                            return
+                        } else {
+                            break;
+                        }
                     }
                 }
 
@@ -331,12 +335,12 @@ let toolsStatus = []
 
     async function testCountDown() {
         console.log('testCountDown...')
-        let cards = document.getElementsByClassName('satellite__card-container')
-        if (cards.length == 0) {
-            // refresh
-            window.location.reload();
-            return
-        }
+        // let cards = document.getElementsByClassName('satellite__card-container')
+        // if (cards.length == 0) {
+        //     // refresh
+        //     window.location.reload();
+        //     return
+        // }
 
         let tools = document.getElementsByClassName('carousel__img--item')
         if (tools.length > 0) {
