@@ -27,6 +27,7 @@ Storage.set = function (name, val) {
 Storage.get = function (name) {
     return localStorage.getItem(name);
 }
+let toolsStatus = []
 ;(async function () {
     'use strict'
 
@@ -45,12 +46,36 @@ Storage.get = function (name) {
         await sleep(1000)
         await login();
         await sleep(1000)
+        await initData();
+        await sleep(1000)
         await loop()
     }
 
+    async function initData() {
+        let tools = document.getElementsByClassName('carousel__img--item')
+        if (tools.length > 0) {
+            for (let i = 0; i < tools.length; i++) {
+                // check every tool
+                tools[i].click();
+                await sleep(500)
+                // update the status of tool
+                let cardNumber = document.getElementsByClassName('card-number')
+                if (cardNumber.length == 1 && cardNumber[0].children[1]) {
+                    let texts = cardNumber[0].children[1].innerText.split('/ ')
+                    if (texts.length == 2) {
+                        toolsStatus[i] = {
+                            max: texts[1],
+                            now: texts[0]
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     async function loop() {
-        await refreshPage()
-        await sleep(1000);
+        // await refreshPage()
+        // await sleep(1000);
         await closeFullDialog();
         await sleep(1000);
 
@@ -93,7 +118,7 @@ Storage.get = function (name) {
         let todayIndex = document.body.innerText.indexOf("Today is a hard day!")
         let showIndex = document.body.innerText.indexOf("Slow down!")
         if (cupIndex != -1 || todayIndex != -1 || showIndex != -1) {
-            Storage.set("currentRpc", currentRpc + 1)
+            // Storage.set("currentRpc", currentRpc + 1)
             window.location.reload();
         } else {
             await testCup()
@@ -162,25 +187,49 @@ Storage.get = function (name) {
 
     async function testRepair() {
         console.log('testRepair...')
-        let tools = document.getElementsByClassName('carousel__img--item')
-        for (let i = 0; i < tools.length; i++) {
-            // check every tool
-            tools[i].click();
-            await sleep(500)
-            let claim = document.getElementsByClassName('plain-button semi-short true')
-            if (claim.length == 1) {
-                claim[0].click()
-                await sleep(5000)
-                await testRpc()
+
+        if (toolsStatus.length > 0) {
+            // check the tool status
+            for (let i = 0;i < toolsStatus.length;i++) {
+                if (toolsStatus[i].now < toolsStatus[i].max/2) {
+                    let tools = document.getElementsByClassName('carousel__img--item')
+                    tools[i].click()
+                    await sleep(500)
+                    let claim = document.getElementsByClassName('plain-button semi-short true')
+                    if (claim.length == 1) {
+                        claim[0].click()
+                        await sleep(5000)
+                        await testRpc()
+                    }
+                    let reloadList = document.getElementsByClassName('plain-button semi-short ');
+                    if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
+                        reloadList[1].click();
+                        await sleep(5000)
+                        await testRpc()
+                    }
+                }
             }
-            let reloadList = document.getElementsByClassName('plain-button semi-short ');
-            if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
-                reloadList[1].click();
-                await sleep(5000)
-                await testRpc()
+        } else {
+            let tools = document.getElementsByClassName('carousel__img--item')
+            for (let i = 0; i < tools.length; i++) {
+                // check every tool
+                tools[i].click();
+                await sleep(500)
+                let claim = document.getElementsByClassName('plain-button semi-short true')
+                if (claim.length == 1) {
+                    claim[0].click()
+                    await sleep(5000)
+                    await testRpc()
+                }
+                let reloadList = document.getElementsByClassName('plain-button semi-short ');
+                if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
+                    reloadList[1].click();
+                    await sleep(5000)
+                    await testRpc()
+                }
             }
         }
-        await loop()
+
     }
 
     async function testEnergy() {
@@ -188,7 +237,7 @@ Storage.get = function (name) {
         let els1 = document.getElementsByClassName("resource-number");
         if (els1.length == 4) {
             let energyMap = els1[3].textContent.split(' /');
-            if (Number(energyMap[0]) < Number(energyMap[1])) {
+            if (Number(energyMap[0]) < Number(energyMap[1])/2) {
                 // add more energy
                 let els2 = document.getElementsByClassName("resource-energy--plus");
 
@@ -276,12 +325,18 @@ Storage.get = function (name) {
         let els = document.getElementsByClassName("plain-button short undefined");
         if (els.length > 0 && els[0].textContent == 'OK') {
             els[0].click();
-            sleep(1000)
+            await sleep(1000)
         }
     }
 
     async function testCountDown() {
         console.log('testCountDown...')
+        let cards = document.getElementsByClassName('satellite__card-container')
+        if (cards.length == 0) {
+            // refresh
+            window.location.reload();
+            return
+        }
 
         let tools = document.getElementsByClassName('carousel__img--item')
         if (tools.length > 0) {
@@ -289,6 +344,17 @@ Storage.get = function (name) {
                 // check every tool
                 tools[i].click();
                 await sleep(500)
+                // update the status of tool
+                let cardNumber = document.getElementsByClassName('card-number')
+                if (cardNumber.length == 1 && cardNumber[0].children[1]) {
+                    let texts = cardNumber[0].children[1].innerText.split('/ ')
+                    if (texts.length == 2) {
+                        toolsStatus[i] = {
+                            max: texts[1],
+                            now: texts[0]
+                        }
+                    }
+                }
                 // mine now
                 let btnList = document.getElementsByClassName("plain-button semi-short");
                 if (btnList.length > 0) {
@@ -334,6 +400,9 @@ Storage.get = function (name) {
                 //
                 // }
             }
+        } else {
+            // refresh
+            window.location.reload();
         }
     }
 })()
