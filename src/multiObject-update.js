@@ -191,16 +191,16 @@ let toolsStatus = []
         if (toolsStatus.length > 0) {
             // check the tool status
             for (let i = 0;i < toolsStatus.length;i++) {
-                if (toolsStatus[i].now < toolsStatus[i].max/2) {
+                if (toolsStatus[i].now < toolsStatus[i].max/4) {
                     let tools = document.getElementsByClassName('carousel__img--item')
                     tools[i].click()
                     await sleep(500)
-                    let claim = document.getElementsByClassName('plain-button semi-short true')
-                    if (claim.length == 1) {
-                        claim[0].click()
-                        await sleep(5000)
-                        await testRpc()
-                    }
+                    // let claim = document.getElementsByClassName('plain-button semi-short true')
+                    // if (claim.length == 1) {
+                    //     claim[0].click()
+                    //     await sleep(5000)
+                    //     await testRpc()
+                    // }
                     let reloadList = document.getElementsByClassName('plain-button semi-short ');
                     if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
                         reloadList[1].click();
@@ -215,12 +215,12 @@ let toolsStatus = []
                 // check every tool
                 tools[i].click();
                 await sleep(500)
-                let claim = document.getElementsByClassName('plain-button semi-short true')
-                if (claim.length == 1) {
-                    claim[0].click()
-                    await sleep(5000)
-                    await testRpc()
-                }
+                // let claim = document.getElementsByClassName('plain-button semi-short true')
+                // if (claim.length == 1) {
+                //     claim[0].click()
+                //     await sleep(5000)
+                //     await testRpc()
+                // }
                 let reloadList = document.getElementsByClassName('plain-button semi-short ');
                 if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
                     reloadList[1].click();
@@ -371,9 +371,9 @@ let toolsStatus = []
                         }
                     }
                 }
-                let reloadList = document.getElementsByClassName('plain-button semi-short ');
-                if (reloadList.length == 2 && reloadList[1].textContent == 'Repair' && reloadList[1].className.indexOf('disabled') == -1) {
-                    reloadList[1].click();
+                let claimList = document.getElementsByClassName('plain-button semi-short true');
+                if (claimList.length == 1 && claimList[0].textContent == 'Claim') {
+                    claimList[0].click();
                     await sleep(5000)
                     await testRpc()
                 }
