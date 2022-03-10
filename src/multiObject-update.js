@@ -83,7 +83,7 @@ let toolsStatus = []
         let els = document.getElementsByClassName("resource-number");
         if (els.length == 4) {
             let energy = els[3].textContent.split(' /');
-            if (Number(energy[0]) < Number(energy[1])) {
+            if (Number(energy[0]) < Number(energy[1])/2) {
                 // charge energy first
                 await testEnergy();
                 await sleep(1000);
